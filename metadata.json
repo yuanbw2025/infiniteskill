@@ -1,0 +1,5 @@
+{
+  "name": "InfiniteSkill - 智能文档技能编译器",
+  "description": "把人类的专业技能书，转化为 OpenClaw 等 AI 模型的原生 Skill 与智能体团队。",
+  "requestFramePermissions": []
+}

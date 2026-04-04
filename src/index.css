@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-primary: #8b7355;
+  --color-brand-secondary: #6b5840;
+  --color-brand-bg: #F4EED1;
+  --color-brand-card: rgba(255, 255, 255, 0.4);
+  --color-brand-border: rgba(0, 0, 0, 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-gray-800 font-sans antialiased;
+  }
+}
+
+.glass-card {
+  @apply bg-brand-card border border-brand-border rounded-2xl shadow-lg backdrop-blur-md;
+}
+
+.compiler-gradient {
+  background: radial-gradient(circle at top right, rgba(139, 115, 85, 0.08), transparent),
+              radial-gradient(circle at bottom left, rgba(107, 88, 64, 0.05), transparent);
+}
