@@ -157,22 +157,29 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen compiler-gradient p-6 md:p-12 flex flex-col items-center">
+    <div className="min-h-screen compiler-gradient p-0 flex flex-col items-center">
+      {/* Navigation Bar */}
+      <nav className="w-full px-[4%] h-14 flex items-center justify-between bg-brand-bg/90 backdrop-blur-xl border-b border-brand-border sticky top-0 z-50">
+        <a href="/" className="text-brand-primary font-black text-xl tracking-[6px] no-underline hover:opacity-80 transition-opacity">悬 象</a>
+        <span className="text-gray-500 text-xs tracking-widest hidden md:inline">却顾所来径，苍苍横翠微</span>
+        <a href="/" className="text-brand-primary text-sm font-semibold no-underline hover:opacity-70 transition-opacity tracking-wide">← 返回主页</a>
+      </nav>
+
       {/* Header */}
-      <header className="w-full max-w-5xl mb-12 text-center">
+      <header className="w-full max-w-5xl mb-12 text-center px-6 pt-10">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-sm font-medium mb-6"
         >
           <Zap className="w-4 h-4" />
-          <span>InfiniteSkill 智能文档技能编译器 v2.0</span>
+          <span>InfiniteSkill · AI Skill Compiler v2.0</span>
         </motion.div>
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-4xl md:text-6xl font-bold tracking-tight mb-4"
+          className="text-4xl md:text-6xl font-black tracking-tight mb-4"
         >
           Infinite<span className="text-brand-primary">Skill</span>
         </motion.h1>
@@ -180,10 +187,18 @@ export default function App() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-gray-600 text-lg max-w-2xl mx-auto"
+          className="text-brand-secondary text-lg max-w-2xl mx-auto leading-relaxed"
         >
-          把人类的专业技能书，转化为 OpenClaw 的原生 Skill 与智能体团队。
+          一键将专业书籍编译为大模型可直接调用的结构化 Skill 技能包 —— 赋予 AI 智能体真正的领域专业能力，而非泛泛而谈的通用回答。
         </motion.p>
+        <motion.div
+           initial={{ opacity: 0, y: -20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.25 }}
+           className="mt-4 text-sm text-gray-500 max-w-xl mx-auto"
+        >
+          上传任何 PDF / EPUB / TXT / Markdown 格式的专业文档，InfiniteSkill 将自动提取知识结构、拆解技能节点、构建智能体团队，输出可被大语言模型原生加载的 Skill Pack。
+        </motion.div>
         <motion.div
            initial={{ opacity: 0, y: -20 }}
            animate={{ opacity: 1, y: 0 }}
@@ -191,9 +206,9 @@ export default function App() {
            className="mt-6 flex justify-center"
         >
           <a href="https://github.com/yuanbw2025/infiniteskill/archive/refs/heads/main.zip"
-             className="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-full font-medium transition-all shadow-lg hover:shadow-xl">
+             className="inline-flex items-center gap-2 px-6 py-2.5 bg-brand-primary hover:bg-brand-secondary text-white rounded-full font-bold transition-all shadow-lg hover:shadow-xl">
              <Github className="w-5 h-5" />
-             下载完整开源代码 (ZIP)
+             下载开源代码 (ZIP)
           </a>
         </motion.div>
       </header>
@@ -325,7 +340,7 @@ export default function App() {
                         "w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors duration-500",
                         stepStatuses[step.id] === "complete" ? "bg-brand-primary text-white" :
                         stepStatuses[step.id] === "loading" ? "bg-brand-primary/20 text-brand-primary animate-pulse" :
-                        stepStatuses[step.id] === "error" ? "bg-red-500/20 text-red-500" : "bg-gray-800 text-gray-500"
+                        stepStatuses[step.id] === "error" ? "bg-red-500/20 text-red-500" : "bg-gray-200 text-gray-400"
                       )}>
                         <StatusIcon className={cn("w-6 h-6", stepStatuses[step.id] === "loading" && "animate-spin")} />
                       </div>
@@ -336,7 +351,7 @@ export default function App() {
                       <p className="text-xs text-gray-500">{step.description}</p>
                       
                       {index < STEPS.length - 1 && (
-                        <div className="hidden md:block absolute top-6 left-[calc(50%+24px)] w-[calc(100%-48px)] h-[2px] bg-gray-800">
+                        <div className="hidden md:block absolute top-6 left-[calc(50%+24px)] w-[calc(100%-48px)] h-[2px] bg-gray-200">
                           <motion.div 
                             className="h-full bg-brand-primary"
                             initial={{ width: 0 }}
@@ -403,21 +418,21 @@ export default function App() {
                     {result.agents.map(agent => (
                       <div key={agent.id} className="p-5 rounded-xl bg-white/5 border border-white/10 hover:border-brand-primary/30 transition-colors">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-lg bg-brand-primary/20 flex items-center justify-center text-brand-primary font-bold text-lg">
+                          <div className="w-10 h-10 rounded-lg bg-brand-primary/15 flex items-center justify-center text-brand-primary font-bold text-lg">
                             {agent.name.charAt(0)}
                           </div>
                           <div>
-                            <h4 className="font-bold text-sm text-gray-900">{agent.name}</h4>
-                            <p className="text-xs text-gray-500 font-mono">{agent.id}</p>
+                            <h4 className="font-bold text-sm text-gray-800">{agent.name}</h4>
+                            <p className="text-xs text-gray-400 font-mono">{agent.id}</p>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-700 mb-4">{agent.description}</p>
+                        <p className="text-sm text-gray-600 mb-4">{agent.description}</p>
                         <div className="space-y-2">
                           <p className="text-xs text-gray-500 font-medium mb-1">拥有技能:</p>
                           {agent.skillIds.map(skillId => {
                             const skill = result.skills.find(s => s.id === skillId);
                             return skill ? (
-                              <div key={skillId} className="text-xs bg-black/5 px-2 py-1.5 rounded border border-black/10 truncate text-gray-700">
+                              <div key={skillId} className="text-xs bg-brand-primary/5 px-2 py-1.5 rounded border border-brand-border truncate text-gray-700">
                                 <span className="text-brand-primary mr-1">✦</span> {skill.name}
                               </div>
                             ) : null;
@@ -455,7 +470,7 @@ export default function App() {
                     普通的 AI 总结只能给你一段粗略的“读后感”，对话结束后知识就丢失了。而 InfiniteSkill 会深入分析文档的语义密度，将专业书籍、操作手册、行业规范中的核心概念、操作步骤和异常处理分支，提取并封装成一套<strong className="text-gray-900">结构完整、可直接导入 OpenClaw 等 AI 助手的智能体团队（Agent Team）与技能包（Skills）</strong>。
                   </p>
                 </div>
-                <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                  <div className="bg-white/60 border border-brand-border rounded-xl p-6">
                   <h3 className="text-gray-900 font-bold mb-3 flex items-center gap-2">
                     <FileCode2 className="w-5 h-5 text-brand-primary" />
                     核心优势
@@ -494,54 +509,54 @@ export default function App() {
                 </p>
                 
                 <div className="grid md:grid-cols-3 gap-4 mt-6">
-                  <div className="bg-black/40 border border-white/10 rounded-xl p-5">
+                  <div className="bg-white/50 border border-brand-border rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                      <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center text-blue-600">
                         <Briefcase className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-gray-900 font-bold text-sm">战略与治理专家</h4>
-                        <div className="text-blue-400 text-xs font-mono">strategic_governance</div>
+                        <h4 className="text-gray-800 font-bold text-sm">战略与治理专家</h4>
+                        <div className="text-blue-600 text-xs font-mono">strategic_governance</div>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 mb-4">负责项目与组织战略对齐，制定裁剪策略，确保价值交付。</p>
                     <div className="space-y-2">
-                      <div className="text-xs bg-white/5 px-2 py-1.5 rounded border border-white/10">✦ 价值交付系统分析</div>
-                      <div className="text-xs bg-white/5 px-2 py-1.5 rounded border border-white/10">✦ 项目裁剪流程制定</div>
+                      <div className="text-xs bg-brand-primary/5 px-2 py-1.5 rounded border border-brand-border">✦ 价值交付系统分析</div>
+                      <div className="text-xs bg-brand-primary/5 px-2 py-1.5 rounded border border-brand-border">✦ 项目裁剪流程制定</div>
                     </div>
                   </div>
                   
-                  <div className="bg-black/40 border border-white/10 rounded-xl p-5">
+                  <div className="bg-white/50 border border-brand-border rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400">
+                      <div className="w-10 h-10 rounded-lg bg-orange-500/15 flex items-center justify-center text-orange-600">
                         <ShieldAlert className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-gray-900 font-bold text-sm">风险与不确定性管理者</h4>
-                        <div className="text-orange-400 text-xs font-mono">risk_manager</div>
+                        <h4 className="text-gray-800 font-bold text-sm">风险与不确定性管理者</h4>
+                        <div className="text-orange-600 text-xs font-mono">risk_manager</div>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 mb-4">专门识别、评估并应对项目中的复杂性、模糊性与风险。</p>
                     <div className="space-y-2">
-                      <div className="text-xs bg-white/5 px-2 py-1.5 rounded border border-white/10">✦ 风险应对策略优化</div>
-                      <div className="text-xs bg-white/5 px-2 py-1.5 rounded border border-white/10">✦ 复杂性导航与降解</div>
+                      <div className="text-xs bg-brand-primary/5 px-2 py-1.5 rounded border border-brand-border">✦ 风险应对策略优化</div>
+                      <div className="text-xs bg-brand-primary/5 px-2 py-1.5 rounded border border-brand-border">✦ 复杂性导航与降解</div>
                     </div>
                   </div>
                   
-                  <div className="bg-black/40 border border-white/10 rounded-xl p-5">
+                  <div className="bg-white/50 border border-brand-border rounded-xl p-5">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
+                      <div className="w-10 h-10 rounded-lg bg-green-500/15 flex items-center justify-center text-green-600">
                         <RefreshCw className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-gray-900 font-bold text-sm">敏捷与交付教练</h4>
-                        <div className="text-green-400 text-xs font-mono">agile_coach</div>
+                        <h4 className="text-gray-800 font-bold text-sm">敏捷与交付教练</h4>
+                        <div className="text-green-600 text-xs font-mono">agile_coach</div>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 mb-4">指导团队选择开发方法，管理交付节奏与质量，提升团队韧性。</p>
                     <div className="space-y-2">
-                      <div className="text-xs bg-white/5 px-2 py-1.5 rounded border border-white/10">✦ 适应型生命周期规划</div>
-                      <div className="text-xs bg-white/5 px-2 py-1.5 rounded border border-white/10">✦ 质量与过程融合</div>
+                      <div className="text-xs bg-brand-primary/5 px-2 py-1.5 rounded border border-brand-border">✦ 适应型生命周期规划</div>
+                      <div className="text-xs bg-brand-primary/5 px-2 py-1.5 rounded border border-brand-border">✦ 质量与过程融合</div>
                     </div>
                   </div>
                 </div>
@@ -556,9 +571,9 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-24 text-gray-600 text-sm text-center">
-        <p>© 2026 InfiniteSkill Compiler. Powered by Gemini 3.1 Pro.</p>
-        <p className="mt-2">不是总结，是结构化编译。</p>
+      <footer className="mt-24 pb-8 text-gray-500 text-sm text-center">
+        <p>© 2026 InfiniteSkill · 悬象出品 · Powered by Gemini 3.1 Pro</p>
+        <p className="mt-2 text-brand-primary/60 font-medium">不是总结，是结构化编译。</p>
       </footer>
 
       <style>{`

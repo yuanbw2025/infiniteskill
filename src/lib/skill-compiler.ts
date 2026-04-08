@@ -27,6 +27,89 @@ export interface CompilationResult {
   readme: string;
 }
 
+// ========================================
+// 额度追踪器（localStorage，按太平洋时间自动重置）
+// ========================================
+export class QuotaTracker {
+  private static PREFIX = 'iskill_q_';
+  private static MODELS = 4;       // 降级链中的模型数量
+  private static LIMIT_PER_MODEL = 20;  // 免费层每模型每天限额
+
+  /** 获取太平洋时间的日期字符串作为 key */
+  private static dateKey(): string {
+    const p = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+    return `${p.getFullYear()}${String(p.getMonth() + 1).padStart(2, '0')}${String(p.getDate()).padStart(2, '0')}`;
+  }
+
+  private static key(): string {
+    return `${this.PREFIX}${this.dateKey()}`;
+  }
+
+  /** 记录一次成功调用 */
+  static record(quotaInfo?: { exhausted?: number }): void {
+    try {
+      const k = this.key();
+      const d = JSON.parse(localStorage.getItem(k) || '{"calls":0,"exhausted":0}');
+      d.calls++;
+      if (quotaInfo?.exhausted !== undefined) d.exhausted = quotaInfo.exhausted;
+      localStorage.setItem(k, JSON.stringify(d));
+      this.cleanup();
+    } catch { }
+  }
+
+  /** 标记全部额度耗尽 */
+  static recordExhausted(): void {
+    try {
+      const k = this.key();
+      const d = JSON.parse(localStorage.getItem(k) || '{"calls":0,"exhausted":0}');
+      d.exhausted = this.MODELS;
+      localStorage.setItem(k, JSON.stringify(d));
+    } catch { }
+  }
+
+  /** 获取当前额度状态 */
+  static getStatus(): {
+    callsToday: number;
+    maxCalls: number;
+    remaining: number;
+    modelsExhausted: number;
+    isExhausted: boolean;
+    resetInfo: string;
+  } {
+    try {
+      const k = this.key();
+      const d = JSON.parse(localStorage.getItem(k) || '{"calls":0,"exhausted":0}');
+      const max = this.MODELS * this.LIMIT_PER_MODEL; // 80
+      const pacific = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+      const hoursLeft = 24 - pacific.getHours();
+
+      return {
+        callsToday: d.calls,
+        maxCalls: max,
+        remaining: Math.max(0, max - d.calls),
+        modelsExhausted: d.exhausted,
+        isExhausted: d.exhausted >= this.MODELS,
+        resetInfo: `约${hoursLeft}小时后重置（北京时间约下午3点）`
+      };
+    } catch {
+      return { callsToday: 0, maxCalls: 80, remaining: 80, modelsExhausted: 0, isExhausted: false, resetInfo: '未知' };
+    }
+  }
+
+  /** 清理过期的 localStorage key */
+  private static cleanup(): void {
+    try {
+      const cur = this.key();
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(this.PREFIX) && k !== cur) {
+          localStorage.removeItem(k);
+        }
+      }
+    } catch { }
+  }
+}
+
 // --- Skill Compiler Logic ---
 
 export class SkillCompiler {
@@ -36,17 +119,18 @@ export class SkillCompiler {
   constructor(apiKey: string) {
     this.userApiKey = apiKey;
     if (apiKey) {
-      this.ai = new OpenAI({ 
-        apiKey: apiKey, 
+      this.ai = new OpenAI({
+        apiKey: apiKey,
         baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-        dangerouslyAllowBrowser: true 
+        dangerouslyAllowBrowser: true
       });
     }
   }
 
   private async _callLLM(systemPrompt: string, userPrompt: string, usePro: boolean = false): Promise<string> {
-    const modelStr = usePro ? "gemini-1.5-pro" : "gemini-1.5-flash";
+    const modelStr = usePro ? "gemini-2.5-pro" : "gemini-2.5-flash";
 
+    // --- 用户自带 Key，走直连 ---
     if (this.userApiKey && this.ai) {
       const response = await this.ai.chat.completions.create({
         model: modelStr,
@@ -56,28 +140,46 @@ export class SkillCompiler {
         ]
       });
       return response.choices[0].message.content || "";
-    } else {
-      const response = await fetch('/api/v2/telemetry-sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Core-Version': '8192'
-        },
-        body: JSON.stringify({
-          system: systemPrompt,
-          user: userPrompt,
-          proxy: usePro ? 'pro' : 'flash'
-        })
-      });
-      
-      if (!response.ok) {
-        let errText = "网络错误：后台伪装端点调用失败，请检查 Vercel 部署。";
-        try { errText = await response.text(); } catch(e) {}
-        throw new Error(errText);
-      }
-      
-      const data = await response.json();
+    }
+
+    // --- 无 Key，走服务端代理 ---
+
+    // 先检查本地额度记录，已耗尽就直接拦截，不浪费请求
+    const quota = QuotaTracker.getStatus();
+    if (quota.isExhausted) {
+      const err = new Error(`🚫 今日免费额度已用完（已用 ${quota.callsToday} 次）。${quota.resetInfo}`);
+      (err as any).isQuotaError = true;
+      throw err;
+    }
+
+    const response = await fetch('/api/v2/telemetry-sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Core-Version': '8192'
+      },
+      body: JSON.stringify({
+        system: systemPrompt,
+        user: userPrompt,
+        proxy: usePro ? 'pro' : 'flash'
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // ✅ 成功：记录调用，返回内容
+      QuotaTracker.record(data._quota ? { exhausted: data._quota.exhausted } : undefined);
       return data.choices?.[0]?.message?.content || "";
+    } else {
+      // ❌ 失败：判断是否额度耗尽
+      if (data._quota?.allExhausted) {
+        QuotaTracker.recordExhausted();
+        const err = new Error(data.error || `🚫 今日免费额度已全部用完。${QuotaTracker.getStatus().resetInfo}`);
+        (err as any).isQuotaError = true;
+        throw err;
+      }
+      throw new Error(data.error || "API 调用失败");
     }
   }
 
@@ -85,23 +187,36 @@ export class SkillCompiler {
    * Main entry point for compilation
    */
   async compile(pdfText: string, onProgress: (stage: string, percent: number) => void): Promise<CompilationResult> {
+    // 开始前报告额度
+    if (!this.userApiKey) {
+      const q = QuotaTracker.getStatus();
+      onProgress(`📊 今日剩余额度: ${q.remaining}/${q.maxCalls} 次 | 开始编译...`, 5);
+    }
+
     onProgress("语义拆解中...", 10);
     const chunks = this.semanticChunking(pdfText);
-    
+
     onProgress("技能提取中...", 30);
     const rawSkills = await this.extractSkillsFromChunks(chunks);
-    
+
     onProgress("逻辑建模中...", 60);
     const synthesizedSkills = await this.synthesizeSkills(rawSkills);
-    
+
     onProgress("团队建模中...", 75);
     const agents = await this.designAgentTeam(synthesizedSkills);
 
     onProgress("技能封装中...", 85);
     const mainSkill = await this.generateMainSkill(synthesizedSkills);
     const readme = this.generateReadme(synthesizedSkills);
-    
-    onProgress("编译完成", 100);
+
+    // 完成后报告剩余额度
+    if (!this.userApiKey) {
+      const q = QuotaTracker.getStatus();
+      onProgress(`✅ 编译完成 | 今日已用 ${q.callsToday}/${q.maxCalls} 次 | 剩余 ${q.remaining} 次`, 100);
+    } else {
+      onProgress("编译完成", 100);
+    }
+
     return {
       mainSkill,
       skills: synthesizedSkills,
@@ -111,7 +226,6 @@ export class SkillCompiler {
   }
 
   private semanticChunking(text: string): string[] {
-    // Simple chunking for now, could be improved with LLM-based boundary detection
     const chunkSize = 4000;
     const chunks: string[] = [];
     for (let i = 0; i < text.length; i += chunkSize) {
@@ -122,24 +236,19 @@ export class SkillCompiler {
 
   private async extractSkillsFromChunks(chunks: string[]): Promise<Skill[]> {
     const allSkills: Skill[] = [];
-    
-    // Process chunks sequentially to avoid rate limits
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const result = await this.extractFromChunk(chunk);
       allSkills.push(...result);
-      
-      // Small delay between requests
       if (i < chunks.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
-    
     return allSkills;
   }
 
   private async extractFromChunk(chunk: string): Promise<Skill[]> {
-    const systemContent = `你是一个专业的技能编译器。请从以下文本中提取出可执行的“技能”。
+    const systemContent = `你是一个专业的技能编译器。请从以下文本中提取出可执行的"技能"。
 每个技能应包含：唯一ID、名称、触发条件、输入参数、执行逻辑（步骤）、输出格式、依赖关系。`;
     const userContent = `文本内容：
 ${chunk}
@@ -157,13 +266,13 @@ ${chunk}
     "dependencies": ["string"]
   }
 ]`;
-    
+
     try {
       let text = await this._callLLM(systemContent, userContent, false);
-      // Remove markdown code blocks if present
       text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
       return JSON.parse(text);
     } catch (e) {
+      if ((e as any).isQuotaError) throw e;  // 额度错误必须抛出
       console.error("Failed to parse AI response", e);
       return [];
     }
@@ -188,8 +297,9 @@ ${JSON.stringify(skills)}
       text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
       return JSON.parse(text);
     } catch (e) {
+      if ((e as any).isQuotaError) throw e;
       console.error("Failed to parse synthesized skills", e);
-      return skills; // Fallback to raw skills
+      return skills;
     }
   }
 
@@ -214,6 +324,7 @@ ${JSON.stringify(skills)}
       text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
       return JSON.parse(text);
     } catch (e) {
+      if ((e as any).isQuotaError) throw e;
       console.error("Failed to parse agent team", e);
       return [{
         id: "general_assistant",
@@ -255,20 +366,12 @@ ${skills.map(s => `- **${s.name}**: ${s.trigger}`).join("\n")}
 `;
   }
 
-  /**
-   * Generate the ZIP file
-   */
   async generateZip(result: CompilationResult): Promise<Blob> {
     const zip = new JSZip();
-    
-    // Add main files
     zip.file("SKILL.md", result.mainSkill);
     zip.file("README.md", result.readme);
-    
-    // Add Agents definition
     zip.file("agents.json", JSON.stringify(result.agents, null, 2));
 
-    // Add individual skills
     const skillsFolder = zip.folder("skills");
     if (skillsFolder) {
       result.skills.forEach(skill => {
@@ -297,7 +400,7 @@ ${skill.outputs}
         skillsFolder.file(`${skill.id}.md`, content);
       });
     }
-    
+
     return await zip.generateAsync({ type: "blob" });
   }
 }

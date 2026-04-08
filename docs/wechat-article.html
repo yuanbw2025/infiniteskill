@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfiniteSkill 公众号文章预览</title>
+<style>
+  body { max-width: 600px; margin: 40px auto; padding: 0 16px; background: #f5f5f5; }
+  .wx-content { background: #fff; padding: 24px 16px; }
+</style>
+</head>
+<body>
+<div class="wx-content">
+
+<!-- ====== 复制以下内容到微信公众号编辑器（HTML模式粘贴） ====== -->
+
+<section style="text-align:center;padding:30px 0 20px;">
+  <p style="font-size:13px;color:#888;letter-spacing:2px;margin:0 0 12px;">INFINITESKILL</p>
+  <h1 style="font-size:22px;font-weight:700;color:#1a1a1a;line-height:1.5;margin:0 0 16px;">把一本书变成 AI 的超能力<br/>我做了一个「文档→技能」编译器</h1>
+  <p style="font-size:13px;color:#999;margin:0;">从专业书籍到结构化 Skill 技能包</p>
+</section>
+
+<section style="border-left:3px solid #07C160;padding:12px 16px;margin:20px 0;background:#f6fdf8;">
+  <p style="font-size:14px;color:#333;line-height:1.8;margin:0;"><strong>InfiniteSkill</strong> 是一个开源的「文档→技能」编译器。它把任何一本专业书籍（PDF/EPUB/TXT），自动编译为大模型智能体可直接调用的<strong>结构化 Skill 技能包</strong>。</p>
+</section>
+
+<section style="text-align:center;margin:28px 0;">
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+  <span style="display:inline-block;margin:0 12px;font-size:12px;color:#aaa;vertical-align:middle;">01 痛点</span>
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+</section>
+
+<h2 style="font-size:17px;font-weight:700;color:#1a1a1a;margin:0 0 16px;padding-left:10px;border-left:3px solid #07C160;">AI 读书的困境</h2>
+
+<p style="font-size:15px;color:#333;line-height:1.9;margin:0 0 12px;">把一本 300 页的专业书丢给 ChatGPT，让它帮你做专业任务，结果通常是：</p>
+
+<section style="background:#fff8f0;border-radius:8px;padding:16px;margin:16px 0;">
+  <p style="font-size:14px;color:#cc6600;line-height:1.8;margin:0 0 8px;">&#10060; <strong>信息丢失严重</strong> — 精妙的流程和矩阵，AI 只记住了皮毛</p>
+  <p style="font-size:14px;color:#cc6600;line-height:1.8;margin:0 0 8px;">&#10060; <strong>无法复用</strong> — 下次再问，AI 又从零开始</p>
+  <p style="font-size:14px;color:#cc6600;line-height:1.8;margin:0;">&#10060; <strong>缺乏结构</strong> — 分不清决策技能和执行流程</p>
+</section>
+
+<p style="font-size:15px;color:#333;line-height:1.9;margin:16px 0;"><strong>根本原因：</strong>大模型的 Context Window 是一次性的，而专业书籍的知识是结构化的。</p>
+
+<section style="text-align:center;margin:28px 0;">
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+  <span style="display:inline-block;margin:0 12px;font-size:12px;color:#aaa;vertical-align:middle;">02 思路</span>
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+</section>
+
+<h2 style="font-size:17px;font-weight:700;color:#1a1a1a;margin:0 0 16px;padding-left:10px;border-left:3px solid #07C160;">编译，而非对话</h2>
+
+<p style="font-size:15px;color:#333;line-height:1.9;margin:0 0 16px;"><strong>不是让 AI 在对话中临时"阅读"，而是提前把书"编译"成 AI 能直接调用的技能模块。</strong></p>
+
+<section style="display:flex;gap:8px;margin:16px 0;">
+  <section style="flex:1;background:#f0f0f0;border-radius:8px;padding:14px;text-align:center;">
+    <p style="font-size:12px;color:#999;margin:0 0 6px;">传统编译器</p>
+    <p style="font-size:13px;color:#333;margin:0;line-height:1.6;">源代码 .c<br/>&#8595; 编译<br/>可执行文件 .exe</p>
+  </section>
+  <section style="flex:1;background:#e8f8ef;border-radius:8px;padding:14px;text-align:center;">
+    <p style="font-size:12px;color:#07C160;margin:0 0 6px;font-weight:600;">InfiniteSkill</p>
+    <p style="font-size:13px;color:#333;margin:0;line-height:1.6;">专业书籍 .pdf<br/>&#8595; 编译<br/>技能包 .zip</p>
+  </section>
+</section>
+
+<section style="margin:20px 0;">
+  <section style="background:#fff5f5;border-radius:8px 8px 0 0;padding:14px 16px;">
+    <p style="font-size:13px;color:#e74c3c;font-weight:600;margin:0 0 8px;">对话模式（传统 RAG）</p>
+    <p style="font-size:13px;color:#666;margin:0;line-height:1.7;">整本书 &#8594; Context Window &#8594; 回答<br/><span style="color:#e74c3c;">问题：上下文有限、信息压缩、不可复用</span></p>
+  </section>
+  <section style="background:#f0faf5;border-radius:0 0 8px 8px;padding:14px 16px;border-top:1px dashed #ccc;">
+    <p style="font-size:13px;color:#07C160;font-weight:600;margin:0 0 8px;">编译模式（InfiniteSkill）</p>
+    <p style="font-size:13px;color:#666;margin:0;line-height:1.7;">整本书 &#8594; 编译引擎 &#8594; 结构化技能包 &#8594; 精准调用<br/><span style="color:#07C160;">优势：离线编译、结构化存储、永久复用</span></p>
+  </section>
+</section>
+
+<section style="text-align:center;margin:28px 0;">
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+  <span style="display:inline-block;margin:0 12px;font-size:12px;color:#aaa;vertical-align:middle;">03 流水线</span>
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+</section>
+
+<h2 style="font-size:17px;font-weight:700;color:#1a1a1a;margin:0 0 16px;padding-left:10px;border-left:3px solid #07C160;">6 步把一本书变成技能</h2>
+
+<section style="margin:16px 0;">
+  <section style="display:flex;align-items:center;margin:0 0 3px;">
+    <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#07C160;color:#fff;border-radius:50%;font-size:13px;font-weight:600;flex-shrink:0;">1</span>
+    <section style="flex:1;margin-left:12px;background:#f6fdf8;border-radius:6px;padding:10px 14px;">
+      <p style="font-size:14px;margin:0;"><strong style="color:#07C160;">文档解析</strong> <span style="color:#888;font-size:12px;">PDF / EPUB / TXT / MD &#8594; 纯文本</span></p>
+    </section>
+  </section>
+  <section style="width:2px;height:12px;background:#d0e8d8;margin:0 0 0 13px;"></section>
+  <section style="display:flex;align-items:center;margin:0 0 3px;">
+    <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#07C160;color:#fff;border-radius:50%;font-size:13px;font-weight:600;flex-shrink:0;">2</span>
+    <section style="flex:1;margin-left:12px;background:#f6fdf8;border-radius:6px;padding:10px 14px;">
+      <p style="font-size:14px;margin:0;"><strong style="color:#07C160;">语义拆解</strong> <span style="color:#888;font-size:12px;">按逻辑边界切分为 N 个语义块</span></p>
+    </section>
+  </section>
+  <section style="width:2px;height:12px;background:#d0e8d8;margin:0 0 0 13px;"></section>
+  <section style="display:flex;align-items:center;margin:0 0 3px;">
+    <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#07C160;color:#fff;border-radius:50%;font-size:13px;font-weight:600;flex-shrink:0;">3</span>
+    <section style="flex:1;margin-left:12px;background:#f6fdf8;border-radius:6px;padding:10px 14px;">
+      <p style="font-size:14px;margin:0;"><strong style="color:#07C160;">技能提取</strong> <span style="color:#888;font-size:12px;">Gemini Flash 识别可执行操作</span></p>
+    </section>
+  </section>
+  <section style="width:2px;height:12px;background:#d0e8d8;margin:0 0 0 13px;"></section>
+  <section style="display:flex;align-items:center;margin:0 0 3px;">
+    <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#07C160;color:#fff;border-radius:50%;font-size:13px;font-weight:600;flex-shrink:0;">4</span>
+    <section style="flex:1;margin-left:12px;background:#f6fdf8;border-radius:6px;padding:10px 14px;">
+      <p style="font-size:14px;margin:0;"><strong style="color:#07C160;">逻辑建模</strong> <span style="color:#888;font-size:12px;">Gemini Pro 合并去重 + 建立依赖</span></p>
+    </section>
+  </section>
+  <section style="width:2px;height:12px;background:#d0e8d8;margin:0 0 0 13px;"></section>
+  <section style="display:flex;align-items:center;margin:0 0 3px;">
+    <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#07C160;color:#fff;border-radius:50%;font-size:13px;font-weight:600;flex-shrink:0;">5</span>
+    <section style="flex:1;margin-left:12px;background:#f6fdf8;border-radius:6px;padding:10px 14px;">
+      <p style="font-size:14px;margin:0;"><strong style="color:#07C160;">团队设计</strong> <span style="color:#888;font-size:12px;">多智能体角色分配</span></p>
+    </section>
+  </section>
+  <section style="width:2px;height:12px;background:#d0e8d8;margin:0 0 0 13px;"></section>
+  <section style="display:flex;align-items:center;">
+    <span style="display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:#07C160;color:#fff;border-radius:50%;font-size:13px;font-weight:600;flex-shrink:0;">6</span>
+    <section style="flex:1;margin-left:12px;background:#f6fdf8;border-radius:6px;padding:10px 14px;">
+      <p style="font-size:14px;margin:0;"><strong style="color:#07C160;">技能封装</strong> <span style="color:#888;font-size:12px;">输出 ZIP 技能包</span></p>
+    </section>
+  </section>
+</section>
+
+<section style="text-align:center;margin:28px 0;">
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+  <span style="display:inline-block;margin:0 12px;font-size:12px;color:#aaa;vertical-align:middle;">04 实战</span>
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+</section>
+
+<h2 style="font-size:17px;font-weight:700;color:#1a1a1a;margin:0 0 16px;padding-left:10px;border-left:3px solid #07C160;">编译《PMBOK 项目管理指南》</h2>
+
+<section style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:10px;padding:20px;margin:16px 0;color:#fff;">
+  <p style="font-size:13px;opacity:0.8;margin:0 0 10px;">输入</p>
+  <p style="font-size:16px;font-weight:600;margin:0 0 4px;">《项目管理知识体系指南》</p>
+  <p style="font-size:13px;opacity:0.8;margin:0 0 16px;">PDF / 312 页 / 约 15 万字</p>
+  <section style="border-top:1px solid rgba(255,255,255,0.3);padding-top:14px;">
+    <p style="font-size:13px;opacity:0.8;margin:0 0 10px;">输出（约 2 分钟）</p>
+    <section style="display:flex;gap:10px;">
+      <section style="flex:1;background:rgba(255,255,255,0.15);border-radius:6px;padding:10px;text-align:center;">
+        <p style="font-size:22px;font-weight:700;margin:0;">23</p>
+        <p style="font-size:11px;opacity:0.8;margin:4px 0 0;">个结构化技能</p>
+      </section>
+      <section style="flex:1;background:rgba(255,255,255,0.15);border-radius:6px;padding:10px;text-align:center;">
+        <p style="font-size:22px;font-weight:700;margin:0;">5</p>
+        <p style="font-size:11px;opacity:0.8;margin:4px 0 0;">个智能体角色</p>
+      </section>
+      <section style="flex:1;background:rgba(255,255,255,0.15);border-radius:6px;padding:10px;text-align:center;">
+        <p style="font-size:22px;font-weight:700;margin:0;">4</p>
+        <p style="font-size:11px;opacity:0.8;margin:4px 0 0;">次 API 调用</p>
+      </section>
+    </section>
+  </section>
+</section>
+
+<p style="font-size:15px;color:#333;line-height:1.9;margin:20px 0 12px;font-weight:600;">自动生成的智能体团队：</p>
+
+<section style="margin:0 0 8px;">
+  <section style="display:flex;align-items:center;background:#f8f9fa;border-radius:8px;padding:12px;margin:0 0 6px;">
+    <span style="font-size:22px;margin-right:10px;">&#127959;</span>
+    <section><p style="font-size:14px;font-weight:600;color:#333;margin:0;">项目规划师</p><p style="font-size:12px;color:#888;margin:2px 0 0;">范围定义 / WBS分解 / 进度估算 / 关键路径</p></section>
+  </section>
+  <section style="display:flex;align-items:center;background:#f8f9fa;border-radius:8px;padding:12px;margin:0 0 6px;">
+    <span style="font-size:22px;margin-right:10px;">&#128176;</span>
+    <section><p style="font-size:14px;font-weight:600;color:#333;margin:0;">成本管控师</p><p style="font-size:12px;color:#888;margin:2px 0 0;">预算编制 / 挣值分析 / 资源分配</p></section>
+  </section>
+  <section style="display:flex;align-items:center;background:#f8f9fa;border-radius:8px;padding:12px;margin:0 0 6px;">
+    <span style="font-size:22px;margin-right:10px;">&#9888;</span>
+    <section><p style="font-size:14px;font-weight:600;color:#333;margin:0;">风险管理师</p><p style="font-size:12px;color:#888;margin:2px 0 0;">风险识别 / 应对规划 / 风险监控</p></section>
+  </section>
+  <section style="display:flex;align-items:center;background:#f8f9fa;border-radius:8px;padding:12px;margin:0 0 6px;">
+    <span style="font-size:22px;margin-right:10px;">&#129309;</span>
+    <section><p style="font-size:14px;font-weight:600;color:#333;margin:0;">干系人协调师</p><p style="font-size:12px;color:#888;margin:2px 0 0;">干系人分析 / 沟通计划 / 团队建设</p></section>
+  </section>
+  <section style="display:flex;align-items:center;background:#f8f9fa;border-radius:8px;padding:12px;">
+    <span style="font-size:22px;margin-right:10px;">&#9989;</span>
+    <section><p style="font-size:14px;font-weight:600;color:#333;margin:0;">质量保障师</p><p style="font-size:12px;color:#888;margin:2px 0 0;">质量控制 / 流程改进 / 交付验证</p></section>
+  </section>
+</section>
+
+<section style="text-align:center;margin:28px 0;">
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+  <span style="display:inline-block;margin:0 12px;font-size:12px;color:#aaa;vertical-align:middle;">05 效果对比</span>
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+</section>
+
+<h2 style="font-size:17px;font-weight:700;color:#1a1a1a;margin:0 0 16px;padding-left:10px;border-left:3px solid #07C160;">加载技能包前后的对话对比</h2>
+
+<p style="font-size:14px;color:#666;margin:0 0 12px;">同一个问题：<em>"6个月/200万/15人的软件项目，做项目规划"</em></p>
+
+<section style="background:#fff5f5;border-radius:8px;padding:16px;margin:0 0 10px;">
+  <p style="font-size:12px;color:#e74c3c;font-weight:600;margin:0 0 8px;">&#10060; 没有 Skill Pack</p>
+  <p style="font-size:14px;color:#666;line-height:1.8;margin:0;font-style:italic;">"项目规划需要考虑范围、时间、成本...一般来说你应该先做WBS..."</p>
+  <p style="font-size:12px;color:#999;margin:8px 0 0;">泛泛而谈，像网上搜的</p>
+</section>
+
+<section style="background:#f0faf5;border-radius:8px;padding:16px;margin:0 0 16px;">
+  <p style="font-size:12px;color:#07C160;font-weight:600;margin:0 0 8px;">&#9989; 加载 Skill Pack 后</p>
+  <p style="font-size:14px;color:#333;line-height:1.8;margin:0;">"根据您的项目参数，我按以下流程规划：<br/><span style="color:#07C160;">[scope_definition]</span> 定义项目范围...<br/><span style="color:#07C160;">[wbs_creation]</span> 分解为 5 个工作包...<br/><span style="color:#07C160;">[critical_path_analysis]</span> 最短工期 5.5 个月...<br/><span style="color:#07C160;">[cost_budgeting]</span> 200 万预算分配..."</p>
+  <p style="font-size:12px;color:#07C160;margin:8px 0 0;">精准调用标准流程，有结构、可追溯</p>
+</section>
+
+<section style="background:#fffbe6;border-radius:8px;padding:14px 16px;margin:16px 0;border:1px solid #ffe58f;">
+  <p style="font-size:14px;color:#d48806;font-weight:600;margin:0 0 6px;">核心差异</p>
+  <p style="font-size:14px;color:#666;line-height:1.8;margin:0;">AI 不再是在泛泛"聊"项目管理，而是在精准<strong>"执行"</strong>项目管理的标准流程。</p>
+</section>
+
+<section style="text-align:center;margin:28px 0;">
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+  <span style="display:inline-block;margin:0 12px;font-size:12px;color:#aaa;vertical-align:middle;">06 使用方式</span>
+  <span style="display:inline-block;width:40px;height:1px;background:#ddd;vertical-align:middle;"></span>
+</section>
+
+<h2 style="font-size:17px;font-weight:700;color:#1a1a1a;margin:0 0 16px;padding-left:10px;border-left:3px solid #07C160;">三种方式，免费开源</h2>
+
+<section style="margin:16px 0;">
+  <section style="background:#f6fdf8;border-radius:8px;padding:14px 16px;margin:0 0 8px;">
+    <p style="font-size:14px;margin:0;"><strong>&#127760; 在线体验</strong>（推荐）</p>
+    <p style="font-size:13px;color:#888;margin:4px 0 0;">无需安装，上传文档即可编译。免费额度每日 80 次。</p>
+  </section>
+  <section style="background:#f6fdf8;border-radius:8px;padding:14px 16px;margin:0 0 8px;">
+    <p style="font-size:14px;margin:0;"><strong>&#128273; 自带 API Key</strong></p>
+    <p style="font-size:13px;color:#888;margin:4px 0 0;">填入 Gemini API Key，直连 Google API，无次数限制。</p>
+  </section>
+  <section style="background:#f6fdf8;border-radius:8px;padding:14px 16px;">
+    <p style="font-size:14px;margin:0;"><strong>&#128187; 本地部署</strong></p>
+    <p style="font-size:13px;color:#888;margin:4px 0 0;">git clone &#8594; npm install &#8594; npm run dev，三步搞定。</p>
+  </section>
+</section>
+
+<section style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:10px;padding:24px 20px;margin:24px 0;text-align:center;color:#fff;">
+  <p style="font-size:16px;font-weight:600;line-height:1.8;margin:0 0 12px;">知识的最佳传递形式<br/>取决于接收者</p>
+  <p style="font-size:14px;opacity:0.85;line-height:1.8;margin:0 0 4px;">人类的最佳学习载体是<strong>书籍</strong></p>
+  <p style="font-size:14px;opacity:0.85;line-height:1.8;margin:0 0 12px;">AI 的最佳执行载体是<strong>结构化技能</strong></p>
+  <p style="font-size:15px;font-weight:600;margin:0;">让每一本好书<br/>都成为 AI 的超能力</p>
+</section>
+
+<section style="text-align:center;margin:24px 0 8px;">
+  <p style="font-size:14px;color:#333;margin:0 0 8px;font-weight:600;">开源地址</p>
+  <p style="font-size:14px;color:#07C160;margin:0;">github.com/yuanbw2025/infiniteskill</p>
+  <p style="font-size:12px;color:#999;margin:8px 0 0;">MIT License / 欢迎 Star 和 PR</p>
+</section>
+
+<section style="text-align:center;margin:24px 0 0;padding:16px 0;border-top:1px solid #f0f0f0;">
+  <p style="font-size:12px;color:#bbb;margin:0;">InfiniteSkill / 自由使用</p>
+</section>
+
+<!-- ====== 复制到此结束 ====== -->
+
+</div>
+</body>
+</html>
