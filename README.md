@@ -1,3 +1,5 @@
+[English](./README-EN.md) | **中文文档**
+
 # InfiniteSkill — 智能文档技能编译器
 
 <p align="center">
