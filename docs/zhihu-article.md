@@ -141,17 +141,9 @@ InfiniteSkill 的编译流水线分为 6 个阶段，我画了一张系统架构
 
 InfiniteSkill 的一个核心设计原则是**不绑定任何单一模型提供商**。目前内置支持 9 大 AI 提供商，一键切换：
 
-| 提供商 | 快速模型（批量提取） | 推理模型（逻辑建模） |
-|--------|-------------------|-------------------|
-| **OpenAI (GPT)** | gpt-4o-mini | gpt-4o |
-| **Anthropic (Claude)** | claude-sonnet-4-20250514 | claude-sonnet-4-20250514 |
-| **Google Gemini** | gemini-2.5-flash | gemini-2.5-pro |
-| **DeepSeek** | deepseek-chat | deepseek-reasoner |
-| **阿里千问 (Qwen)** | qwen-plus | qwen-max |
-| **Kimi (月之暗面)** | moonshot-v1-8k | moonshot-v1-128k |
-| **智谱 GLM** | glm-4-flash | glm-4-plus |
-| **豆包 (火山引擎)** | doubao-1.5-pro-32k | doubao-1.5-pro-256k |
-| **自定义** | 用户自填 | 用户自填 |
+> **GPT** · **Claude** · **Gemini** · **DeepSeek** · **千问** · **Kimi** · **GLM** · **豆包** · **自定义（任何 OpenAI 兼容 API）**
+
+每家提供商都支持自定义填写具体模型名称，随时切换最新模型，不受版本绑定。
 
 **中国境内的用户**可以直接使用千问、Kimi、智谱 GLM、豆包等国产模型，无需科学上网。海外用户可以用 GPT、Claude、Gemini。
 

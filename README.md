@@ -264,19 +264,11 @@ skills/
 
 ### 自带 API Key（无限制，支持 9 大提供商）
 
-在页面「⚙️ 开发者高级权限」面板中选择你的 AI 提供商并填入 API Key：
+在页面「⚙️ 开发者高级权限」面板中选择你的 AI 提供商并填入 API Key。内置支持：
 
-| 提供商 | 快速模型 | 推理模型 |
-|--------|---------|---------|
-| **OpenAI (GPT)** | gpt-4o-mini | gpt-4o |
-| **Anthropic (Claude)** | claude-sonnet-4-20250514 | claude-sonnet-4-20250514 |
-| **Google Gemini** | gemini-2.5-flash | gemini-2.5-pro |
-| **DeepSeek** | deepseek-chat | deepseek-reasoner |
-| **阿里千问 (Qwen)** | qwen-plus | qwen-max |
-| **Kimi (月之暗面)** | moonshot-v1-8k | moonshot-v1-128k |
-| **智谱 GLM** | glm-4-flash | glm-4-plus |
-| **豆包 (火山引擎)** | doubao-1.5-pro-32k | doubao-1.5-pro-256k |
-| **自定义** | 用户自填 | 用户自填 |
+> **GPT** · **Claude** · **Gemini** · **DeepSeek** · **千问** · **Kimi** · **GLM** · **豆包** · **自定义（任何 OpenAI 兼容 API）**
+
+具体模型名称在页面配置中自行填写，可随时切换最新模型。
 
 - 直连各提供商 API，不经过任何代理
 - 无调用次数限制
