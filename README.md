@@ -114,9 +114,10 @@ npm run build
 │             技能编译引擎 (skill-compiler)         │
 │  语义分块 → 技能提取 → 逻辑建模 → 团队设计 → 封装  │
 ├────────────────────────────────────────────────┤
-│                  AI 推理层                       │
-│   Google Gemini 2.5 Flash / Pro (OpenAI 协议)   │
-│   用户自带 Key 直连 │ 免费代理通道（有日限额）     │
+│                  AI 推理层（通用多模型）            │
+│  GPT / Claude / Gemini / DeepSeek / 千问 / Kimi  │
+│  / GLM / 豆包 + 任何 OpenAI 兼容 API             │
+│   用户自带 Key 直连 │ 免费 Gemini 代理通道        │
 ├────────────────────────────────────────────────┤
 │                  输出层                          │
 │   ZIP 技能包：SKILL.md + agents.json + skills/   │
@@ -147,7 +148,7 @@ infiniteskill/
 | 依赖 | 用途 |
 |------|------|
 | `react` + `react-dom` | UI 框架 |
-| `openai` | 调用 Gemini API（兼容 OpenAI 协议） |
+| `openai` | 调用各大模型 API（统一 OpenAI 兼容协议） |
 | `pdfjs-dist` | PDF 文本提取（含 Web Worker） |
 | `epubjs` | EPUB 电子书解析 |
 | `jszip` | 生成 ZIP 技能包 |
@@ -261,12 +262,27 @@ skills/
 - 额度按太平洋时间每日凌晨重置（约北京时间下午 3 点）
 - 客户端 `localStorage` 追踪使用量
 
-### 自带 API Key（无限制）
+### 自带 API Key（无限制，支持 9 大提供商）
 
-在页面右上角「⚙️ 设置」中填入你的 Google Gemini API Key：
-- 直连 Google API，不经过任何代理
+在页面「⚙️ 开发者高级权限」面板中选择你的 AI 提供商并填入 API Key：
+
+| 提供商 | 快速模型 | 推理模型 |
+|--------|---------|---------|
+| **OpenAI (GPT)** | gpt-4o-mini | gpt-4o |
+| **Anthropic (Claude)** | claude-sonnet-4-20250514 | claude-sonnet-4-20250514 |
+| **Google Gemini** | gemini-2.5-flash | gemini-2.5-pro |
+| **DeepSeek** | deepseek-chat | deepseek-reasoner |
+| **阿里千问 (Qwen)** | qwen-plus | qwen-max |
+| **Kimi (月之暗面)** | moonshot-v1-8k | moonshot-v1-128k |
+| **智谱 GLM** | glm-4-flash | glm-4-plus |
+| **豆包 (火山引擎)** | doubao-1.5-pro-32k | doubao-1.5-pro-256k |
+| **自定义** | 用户自填 | 用户自填 |
+
+- 直连各提供商 API，不经过任何代理
 - 无调用次数限制
-- Key 仅保存在你的浏览器 `localStorage` 中
+- Key 仅保存在你的浏览器 `localStorage` 中，绝不上传
+- Claude 走原生 Anthropic Messages API；其余均走 OpenAI 兼容协议
+- **自定义**选项支持任何兼容 OpenAI `/v1/chat/completions` 的服务（如 vLLM、Ollama、one-api 中转站等）
 
 ### Vercel 部署
 
@@ -292,7 +308,7 @@ vercel
 - [ ] 支持 Word (.docx) 格式
 - [ ] 技能包在线预览与编辑
 - [ ] 对接 OpenClaw 一键导入
-- [ ] 支持更多 AI 模型（Claude、GPT-4o 等）
+- [x] 支持 9 大 AI 模型（GPT / Claude / Gemini / DeepSeek / 千问 / Kimi / GLM / 豆包 + 自定义）
 - [ ] 增量编译（新章节追加到已有技能包）
 - [ ] 多语言文档支持
 

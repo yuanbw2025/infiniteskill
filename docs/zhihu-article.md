@@ -137,11 +137,27 @@ InfiniteSkill 的编译流水线分为 6 个阶段，我画了一张系统架构
 
 ## 五、技术选型与思考
 
-### 为什么选 Gemini？
+### 通用多模型支持：用你手头任何一个大模型
 
-- **Gemini 2.5 Flash**：速度快、性价比高，适合批量技能提取
-- **Gemini 2.5 Pro**：推理能力强，适合逻辑建模和团队设计
-- **OpenAI 兼容协议**：一套代码，未来可无缝切换 GPT-4o、Claude 等
+InfiniteSkill 的一个核心设计原则是**不绑定任何单一模型提供商**。目前内置支持 9 大 AI 提供商，一键切换：
+
+| 提供商 | 快速模型（批量提取） | 推理模型（逻辑建模） |
+|--------|-------------------|-------------------|
+| **OpenAI (GPT)** | gpt-4o-mini | gpt-4o |
+| **Anthropic (Claude)** | claude-sonnet-4-20250514 | claude-sonnet-4-20250514 |
+| **Google Gemini** | gemini-2.5-flash | gemini-2.5-pro |
+| **DeepSeek** | deepseek-chat | deepseek-reasoner |
+| **阿里千问 (Qwen)** | qwen-plus | qwen-max |
+| **Kimi (月之暗面)** | moonshot-v1-8k | moonshot-v1-128k |
+| **智谱 GLM** | glm-4-flash | glm-4-plus |
+| **豆包 (火山引擎)** | doubao-1.5-pro-32k | doubao-1.5-pro-256k |
+| **自定义** | 用户自填 | 用户自填 |
+
+**中国境内的用户**可以直接使用千问、Kimi、智谱 GLM、豆包等国产模型，无需科学上网。海外用户可以用 GPT、Claude、Gemini。
+
+**自定义选项**支持任何兼容 OpenAI `/v1/chat/completions` 格式的服务——包括 vLLM 私有部署、Ollama 本地模型、one-api 中转站等。只要你的服务能响应 OpenAI 格式的请求，InfiniteSkill 就能用。
+
+技术实现上，除了 Claude（走原生 Anthropic Messages API）之外，所有提供商统一通过 `openai` npm 包的 `baseURL` 参数进行适配，一套代码搞定全部。
 
 ### 为什么不用 RAG？
 
@@ -189,8 +205,8 @@ dependencies: ["cost_budgeting", "schedule_estimation"]
 
 InfiniteSkill 已完全开源，你可以：
 
-- **在线体验**：直接上传文档，免费编译（每日 80 次额度）
-- **自带 Key**：填入 Gemini API Key，无限制使用
+- **在线体验**：直接上传文档，免费编译（每日 80 次额度，走 Gemini 代理通道）
+- **自带 Key**：选择你的 AI 提供商（GPT / Claude / Gemini / DeepSeek / 千问 / Kimi / GLM / 豆包等 9 大提供商），填入 API Key，无限制使用
 - **本地部署**：`git clone` → `npm install` → `npm run dev`
 
 **GitHub**：https://github.com/yuanbw2025/infiniteskill
