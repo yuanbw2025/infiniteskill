@@ -35,12 +35,12 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 12px;
   }
-  .stage:nth-child(1) .stage-num { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-  .stage:nth-child(2) .stage-num { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-  .stage:nth-child(3) .stage-num { background: linear-gradient(135deg, #f59e0b, #d97706); }
-  .stage:nth-child(4) .stage-num { background: linear-gradient(135deg, #10b981, #059669); }
-  .stage:nth-child(5) .stage-num { background: linear-gradient(135deg, #ef4444, #dc2626); }
-  .stage:nth-child(6) .stage-num { background: linear-gradient(135deg, #ec4899, #db2777); }
+  .stage.s1 .stage-num { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .stage.s2 .stage-num { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .stage.s3 .stage-num { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .stage.s4 .stage-num { background: linear-gradient(135deg, #10b981, #059669); }
+  .stage.s5 .stage-num { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .stage.s6 .stage-num { background: linear-gradient(135deg, #ec4899, #db2777); }
   .stage-icon { font-size: 40px; margin-bottom: 10px; }
   .stage-title { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
   .stage-desc { font-size: 12px; color: #888; text-align: center; line-height: 1.6; }
@@ -75,7 +75,7 @@
     <p>6 个阶段，把一本专业书籍编译成 AI 可调用的结构化技能包</p>
   </div>
   <div class="pipeline">
-    <div class="stage">
+    <div class="stage s1">
       <div class="stage-num">1</div>
       <div class="stage-icon">📄</div>
       <div class="stage-title">文档解析</div>
@@ -83,7 +83,7 @@
       <div class="stage-output">→ 纯文本</div>
     </div>
     <div class="arrow-connector"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-    <div class="stage">
+    <div class="stage s2">
       <div class="stage-num">2</div>
       <div class="stage-icon">🧩</div>
       <div class="stage-title">语义拆解</div>
@@ -91,7 +91,7 @@
       <div class="stage-output">→ N 个语义块</div>
     </div>
     <div class="arrow-connector"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-    <div class="stage">
+    <div class="stage s3">
       <div class="stage-num">3</div>
       <div class="stage-icon">⚡</div>
       <div class="stage-title">技能提取</div>
@@ -99,7 +99,7 @@
       <div class="stage-output">→ M 个原子技能</div>
     </div>
     <div class="arrow-connector"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-    <div class="stage">
+    <div class="stage s4">
       <div class="stage-num">4</div>
       <div class="stage-icon">🔗</div>
       <div class="stage-title">逻辑建模</div>
@@ -107,7 +107,7 @@
       <div class="stage-output">→ K 个核心技能</div>
     </div>
     <div class="arrow-connector"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-    <div class="stage">
+    <div class="stage s5">
       <div class="stage-num">5</div>
       <div class="stage-icon">👥</div>
       <div class="stage-title">团队设计</div>
@@ -115,7 +115,7 @@
       <div class="stage-output">→ Agent Team</div>
     </div>
     <div class="arrow-connector"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-    <div class="stage">
+    <div class="stage s6">
       <div class="stage-num">6</div>
       <div class="stage-icon">📦</div>
       <div class="stage-title">技能封装</div>
