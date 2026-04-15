@@ -28,6 +28,98 @@ export interface CompilationResult {
 }
 
 // ========================================
+// 通用 LLM 提供商配置（OpenAI 兼容协议）
+// ========================================
+export interface LLMProviderConfig {
+  id: string;
+  name: string;
+  baseURL: string;
+  defaultModel: string;       // 默认快速模型
+  proModel: string;           // 推理/高质量模型
+  requiresApiKey: boolean;
+}
+
+/** 预置的 LLM 提供商列表（全部兼容 OpenAI Chat Completions 格式） */
+export const LLM_PROVIDERS: LLMProviderConfig[] = [
+  {
+    id: "gemini",
+    name: "Google Gemini",
+    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+    defaultModel: "gemini-2.5-flash",
+    proModel: "gemini-2.5-pro",
+    requiresApiKey: true,
+  },
+  {
+    id: "openai",
+    name: "OpenAI (GPT)",
+    baseURL: "https://api.openai.com/v1/",
+    defaultModel: "gpt-4o-mini",
+    proModel: "gpt-4o",
+    requiresApiKey: true,
+  },
+  {
+    id: "claude",
+    name: "Anthropic (Claude)",
+    baseURL: "https://api.anthropic.com/v1/",
+    defaultModel: "claude-sonnet-4-20250514",
+    proModel: "claude-sonnet-4-20250514",
+    requiresApiKey: true,
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    baseURL: "https://api.deepseek.com/v1/",
+    defaultModel: "deepseek-chat",
+    proModel: "deepseek-reasoner",
+    requiresApiKey: true,
+  },
+  {
+    id: "qwen",
+    name: "阿里千问 (Qwen)",
+    baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1/",
+    defaultModel: "qwen-plus",
+    proModel: "qwen-max",
+    requiresApiKey: true,
+  },
+  {
+    id: "kimi",
+    name: "Kimi (月之暗面)",
+    baseURL: "https://api.moonshot.cn/v1/",
+    defaultModel: "moonshot-v1-8k",
+    proModel: "moonshot-v1-128k",
+    requiresApiKey: true,
+  },
+  {
+    id: "glm",
+    name: "智谱 GLM",
+    baseURL: "https://open.bigmodel.cn/api/paas/v4/",
+    defaultModel: "glm-4-flash",
+    proModel: "glm-4-plus",
+    requiresApiKey: true,
+  },
+  {
+    id: "doubao",
+    name: "豆包 (火山引擎)",
+    baseURL: "https://ark.cn-beijing.volces.com/api/v3/",
+    defaultModel: "doubao-1.5-pro-32k",
+    proModel: "doubao-1.5-pro-256k",
+    requiresApiKey: true,
+  },
+  {
+    id: "custom",
+    name: "自定义 (OpenAI 兼容)",
+    baseURL: "",
+    defaultModel: "",
+    proModel: "",
+    requiresApiKey: true,
+  },
+];
+
+export function getProvider(id: string): LLMProviderConfig {
+  return LLM_PROVIDERS.find(p => p.id === id) || LLM_PROVIDERS[0];
+}
+
+// ========================================
 // 额度追踪器（localStorage，按太平洋时间自动重置）
 // ========================================
 export class QuotaTracker {
@@ -115,31 +207,88 @@ export class QuotaTracker {
 export class SkillCompiler {
   private ai: OpenAI | null = null;
   private userApiKey: string;
+  private provider: LLMProviderConfig;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, providerId: string = "gemini", customBaseURL?: string, customModel?: string, customProModel?: string) {
     this.userApiKey = apiKey;
-    if (apiKey) {
+    this.provider = getProvider(providerId);
+
+    // 自定义提供商：覆盖 baseURL 和模型
+    if (providerId === "custom") {
+      if (customBaseURL) this.provider = { ...this.provider, baseURL: customBaseURL };
+      if (customModel) this.provider = { ...this.provider, defaultModel: customModel };
+      if (customProModel) this.provider = { ...this.provider, proModel: customProModel };
+    }
+
+    if (apiKey && this.provider.baseURL) {
       this.ai = new OpenAI({
         apiKey: apiKey,
-        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+        baseURL: this.provider.baseURL,
         dangerouslyAllowBrowser: true
       });
     }
   }
 
-  private async _callLLM(systemPrompt: string, userPrompt: string, usePro: boolean = false): Promise<string> {
-    const modelStr = usePro ? "gemini-2.5-pro" : "gemini-2.5-flash";
+  /** 获取当前使用的提供商信息 */
+  getProviderInfo(): { name: string; defaultModel: string; proModel: string } {
+    return {
+      name: this.provider.name,
+      defaultModel: this.provider.defaultModel,
+      proModel: this.provider.proModel,
+    };
+  }
 
-    // --- 用户自带 Key，走直连 ---
-    if (this.userApiKey && this.ai) {
-      const response = await this.ai.chat.completions.create({
-        model: modelStr,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ]
-      });
-      return response.choices[0].message.content || "";
+  /**
+   * Claude (Anthropic) 使用独立的 Messages API，非 OpenAI 兼容格式。
+   * 需要用 fetch 直接调用原生接口。
+   */
+  private async _callClaude(systemPrompt: string, userPrompt: string, usePro: boolean): Promise<string> {
+    const model = usePro ? this.provider.proModel : this.provider.defaultModel;
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": this.userApiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 8192,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPrompt }],
+      }),
+    });
+    if (!resp.ok) {
+      const err = await resp.text();
+      throw new Error(`Claude API 错误 (${resp.status}): ${err.substring(0, 300)}`);
+    }
+    const data = await resp.json();
+    // Anthropic Messages API 返回格式: { content: [{ type: "text", text: "..." }] }
+    return data.content?.[0]?.text || "";
+  }
+
+  private async _callLLM(systemPrompt: string, userPrompt: string, usePro: boolean = false): Promise<string> {
+    const modelStr = usePro ? this.provider.proModel : this.provider.defaultModel;
+
+    // --- 用户自带 Key ---
+    if (this.userApiKey) {
+      // Claude 走原生 Anthropic Messages API（非 OpenAI 兼容）
+      if (this.provider.id === "claude") {
+        return this._callClaude(systemPrompt, userPrompt, usePro);
+      }
+
+      // 其余提供商统一走 OpenAI 兼容协议
+      if (this.ai) {
+        const response = await this.ai.chat.completions.create({
+          model: modelStr,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ]
+        });
+        return response.choices[0].message.content || "";
+      }
     }
 
     // --- 无 Key，走服务端代理 ---

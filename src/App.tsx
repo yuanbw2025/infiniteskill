@@ -26,7 +26,7 @@ import {
   Github
 } from "lucide-react";
 import { extractTextFromFile } from "./lib/doc-parser";
-import { SkillCompiler, CompilationResult } from "./lib/skill-compiler";
+import { SkillCompiler, CompilationResult, LLM_PROVIDERS, getProvider } from "./lib/skill-compiler";
 import { cn } from "./lib/utils";
 
 type StepStatus = "idle" | "loading" | "complete" | "error";
@@ -60,9 +60,14 @@ export default function App() {
   const [progressText, setProgressText] = useState("");
 
   const [apiKey, setApiKey] = useState(localStorage.getItem("infinite_skill_api_key") || "");
+  const [providerId, setProviderId] = useState(localStorage.getItem("infinite_skill_provider") || "gemini");
+  const [customBaseURL, setCustomBaseURL] = useState(localStorage.getItem("infinite_skill_custom_url") || "");
+  const [customModel, setCustomModel] = useState(localStorage.getItem("infinite_skill_custom_model") || "");
+  const [customProModel, setCustomProModel] = useState(localStorage.getItem("infinite_skill_custom_pro_model") || "");
   const [showSettings, setShowSettings] = useState(false);
 
-  const compiler = useMemo(() => new SkillCompiler(apiKey), [apiKey]);
+  const selectedProvider = useMemo(() => getProvider(providerId), [providerId]);
+  const compiler = useMemo(() => new SkillCompiler(apiKey, providerId, customBaseURL, customModel, customProModel), [apiKey, providerId, customBaseURL, customModel, customProModel]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -236,9 +241,79 @@ export default function App() {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="pt-6">
+                <div className="pt-6 space-y-5">
+                  {/* Provider Selection */}
                   <div>
-                    <label className="block text-sm text-gray-600 font-medium mb-2">私有大模型 API Key（选填）</label>
+                    <label className="block text-sm text-gray-600 font-medium mb-2">选择 AI 提供商</label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {LLM_PROVIDERS.map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            setProviderId(p.id);
+                            localStorage.setItem("infinite_skill_provider", p.id);
+                          }}
+                          className={cn(
+                            "px-3 py-2.5 rounded-lg border text-xs font-medium transition-all text-left",
+                            providerId === p.id
+                              ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
+                              : "border-brand-border bg-white/30 text-gray-600 hover:border-brand-primary/40"
+                          )}
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                    {selectedProvider.id !== "custom" && apiKey && (
+                      <p className="mt-2 text-xs text-gray-400">
+                        快速模型: <code className="text-brand-primary">{selectedProvider.defaultModel}</code> · 推理模型: <code className="text-brand-primary">{selectedProvider.proModel}</code>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Custom Provider Fields */}
+                  {providerId === "custom" && (
+                    <div className="space-y-3 p-4 bg-white/20 border border-brand-border rounded-lg">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Base URL（OpenAI 兼容端点）</label>
+                        <input
+                          type="text"
+                          value={customBaseURL}
+                          onChange={e => { setCustomBaseURL(e.target.value); localStorage.setItem("infinite_skill_custom_url", e.target.value); }}
+                          placeholder="例如: https://api.example.com/v1/"
+                          className="w-full bg-white/50 border border-brand-border rounded-lg px-3 py-2 text-sm text-gray-900 focus:border-brand-primary focus:outline-none transition-colors"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">快速模型名称</label>
+                          <input
+                            type="text"
+                            value={customModel}
+                            onChange={e => { setCustomModel(e.target.value); localStorage.setItem("infinite_skill_custom_model", e.target.value); }}
+                            placeholder="例如: gpt-4o-mini"
+                            className="w-full bg-white/50 border border-brand-border rounded-lg px-3 py-2 text-sm text-gray-900 focus:border-brand-primary focus:outline-none transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">推理模型名称</label>
+                          <input
+                            type="text"
+                            value={customProModel}
+                            onChange={e => { setCustomProModel(e.target.value); localStorage.setItem("infinite_skill_custom_pro_model", e.target.value); }}
+                            placeholder="例如: gpt-4o"
+                            className="w-full bg-white/50 border border-brand-border rounded-lg px-3 py-2 text-sm text-gray-900 focus:border-brand-primary focus:outline-none transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* API Key */}
+                  <div>
+                    <label className="block text-sm text-gray-600 font-medium mb-2">
+                      {selectedProvider.name} API Key（选填）
+                    </label>
                     <input 
                       type="password"
                       value={apiKey}
@@ -246,13 +321,13 @@ export default function App() {
                         setApiKey(e.target.value);
                         localStorage.setItem("infinite_skill_api_key", e.target.value);
                       }}
-                      placeholder="如果您有自己的专属 Key 可在此处填写，若不填则走工具免费代理通道"
+                      placeholder="如果您有自己的专属 Key 可在此处填写，若不填则走工具免费 Gemini 代理通道"
                       className="w-full bg-white/50 border border-brand-border rounded-lg px-4 py-3 text-sm text-gray-900 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary focus:outline-none transition-colors"
                     />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-                  <Save className="w-3 h-3" /> 您的输入即刻自动保存在本地浏览器中，彻底杜绝云端泄露
+                  <Save className="w-3 h-3" /> 所有配置即刻自动保存在本地浏览器中，彻底杜绝云端泄露。支持任何兼容 OpenAI Chat Completions 格式的 API。
                 </div>
               </motion.div>
             )}
@@ -572,7 +647,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="mt-24 pb-8 text-gray-500 text-sm text-center">
-        <p>© 2026 InfiniteSkill · 悬象出品 · Powered by Gemini 3.1 Pro</p>
+        <p>© 2026 InfiniteSkill · 悬象出品 · 支持 GPT / Claude / Gemini / DeepSeek / 千问 / Kimi / GLM / 豆包 及任何 OpenAI 兼容 API</p>
         <p className="mt-2 text-brand-primary/60 font-medium">不是总结，是结构化编译。</p>
       </footer>
 
